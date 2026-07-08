@@ -1,0 +1,28 @@
+{
+  "name": "bharath-bank-of-india",
+  "version": "1.0.0",
+  "description": "Bharath Bank of India — demo internet-banking app (web + desktop)",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "dev": "netlify dev --dir public --port 8890",
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "in.bharathbank.app",
+    "productName": "Bharath Bank of India",
+    "files": [
+      "public/**/*",
+      "desktop/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.0.0"
+  }
+}

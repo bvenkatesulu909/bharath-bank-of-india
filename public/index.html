@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bharath Bank of India</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff8f1c'/><text x='50' y='68' font-size='48' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%230b2447'>B</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">BBI</span>
+        <span class="brand-text">Bharath Bank of India</span>
+      </a>
+      <nav class="nav">
+        <button class="linkbtn" onclick="openModal('login')">Login</button>
+        <button class="btn-solid linkbtn" onclick="openModal('register')">Open Account</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="flash" class="flash-stack"></div>
+
+    <section class="hero">
+      <h1>Banking that puts Bharath first.</h1>
+      <p>Open a savings account in minutes, transfer money instantly to anyone in
+         Bharath Bank of India, and track every rupee — all from one secure dashboard.</p>
+      <div class="cta">
+        <button class="btn btn-primary" onclick="openModal('register')">Open a Free Account</button>
+        <button class="btn btn-light" onclick="openModal('login')">Internet Banking Login</button>
+      </div>
+    </section>
+
+    <div class="features">
+      <div class="feature">
+        <div class="ico">💸</div><h3>Instant Transfers</h3>
+        <p>Send money to any BBI account number in real time with a shared reference number for both parties.</p>
+      </div>
+      <div class="feature">
+        <div class="ico">🔒</div><h3>Secure Login</h3>
+        <p>Every session is protected and your balance is only ever visible to you after you log in.</p>
+      </div>
+      <div class="feature">
+        <div class="ico">📊</div><h3>Full Statement</h3>
+        <p>Every deposit, withdrawal and transfer is recorded with a running balance you can filter anytime.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:28px">
+      <h2>Why Bharath Bank of India?</h2>
+      <p class="muted">A demonstration internet-banking platform — accounts, double-entry
+        transfers and a real-time ledger, running entirely in your browser. Branch:
+        <b>Bharath Nagar Main Branch, Hyderabad</b> · IFSC <b>BBIN0001729</b>.</p>
+    </div>
+  </main>
+
+  <!-- Login modal -->
+  <div id="modal-login" class="modal-backdrop hidden">
+    <div class="modal">
+      <button class="close" onclick="closeModal()">&times;</button>
+      <h2>Internet Banking Login</h2>
+      <p class="sub">Welcome back to Bharath Bank of India.</p>
+      <form onsubmit="return doLogin(event)">
+        <div class="form-row"><label>Email</label><input id="li-email" type="email" required></div>
+        <div class="form-row"><label>Password</label><input id="li-password" type="password" required></div>
+        <button class="btn btn-navy btn-block" type="submit">Log In</button>
+      </form>
+      <div class="form-foot">New to BBI? <span class="link" onclick="openModal('register')">Open an account</span></div>
+    </div>
+  </div>
+
+  <!-- Register modal -->
+  <div id="modal-register" class="modal-backdrop hidden">
+    <div class="modal">
+      <button class="close" onclick="closeModal()">&times;</button>
+      <h2>Open your account</h2>
+      <p class="sub">Your account number is generated instantly.</p>
+      <form onsubmit="return doRegister(event)">
+        <div class="form-row"><label>Full name</label><input id="rg-name" required></div>
+        <div class="two-col">
+          <div class="form-row"><label>Email</label><input id="rg-email" type="email" required></div>
+          <div class="form-row"><label>Mobile</label><input id="rg-phone" required></div>
+        </div>
+        <div class="two-col">
+          <div class="form-row"><label>Account type</label>
+            <select id="rg-type"><option>Savings</option><option>Current</option></select></div>
+          <div class="form-row"><label>Opening deposit (₹)</label>
+            <input id="rg-open" type="number" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="two-col">
+          <div class="form-row"><label>Password</label><input id="rg-pw" type="password" required></div>
+          <div class="form-row"><label>Confirm</label><input id="rg-pw2" type="password" required></div>
+        </div>
+        <div class="hint">Password must be at least 6 characters.</div>
+        <button class="btn btn-primary btn-block" type="submit" style="margin-top:12px">Create Account</button>
+      </form>
+      <div class="form-foot">Already a customer? <span class="link" onclick="openModal('login')">Log in</span></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div><strong>Bharath Bank of India</strong><br>Bharath Nagar Main Branch, Hyderabad · IFSC BBIN0001729</div>
+      <div>Demonstration application · Not a real bank, holds no real money.</div>
+    </div>
+  </footer>
+
+  <script src="bank.js"></script>
+  <script>
+    // If already logged in, go straight to the dashboard.
+    if (Bank.currentUser()) location.href = "dashboard.html";
+
+    function flash(msg, kind) {
+      document.getElementById("flash").innerHTML =
+        '<div class="flash flash-' + (kind || "info") + '">' + msg + '</div>';
+    }
+    function openModal(which) {
+      closeModal();
+      document.getElementById("modal-" + which).classList.remove("hidden");
+    }
+    function closeModal() {
+      document.querySelectorAll(".modal-backdrop").forEach(m => m.classList.add("hidden"));
+    }
+    document.querySelectorAll(".modal-backdrop").forEach(m =>
+      m.addEventListener("click", e => { if (e.target === m) closeModal(); }));
+
+    function doLogin(e) {
+      e.preventDefault();
+      try {
+        Bank.login(document.getElementById("li-email").value, document.getElementById("li-password").value);
+        location.href = "dashboard.html";
+      } catch (err) { closeModal(); flash(err.message, "danger"); }
+      return false;
+    }
+    function doRegister(e) {
+      e.preventDefault();
+      const pw = document.getElementById("rg-pw").value;
+      const pw2 = document.getElementById("rg-pw2").value;
+      if (pw !== pw2) { closeModal(); flash("Passwords do not match.", "danger"); return false; }
+      try {
+        Bank.register({
+          fullName: document.getElementById("rg-name").value,
+          email: document.getElementById("rg-email").value,
+          phone: document.getElementById("rg-phone").value,
+          password: pw,
+          accountType: document.getElementById("rg-type").value,
+          openingBalance: document.getElementById("rg-open").value,
+        });
+        location.href = "dashboard.html";
+      } catch (err) { closeModal(); flash(err.message, "danger"); }
+      return false;
+    }
+  </script>
+</body>
+</html>

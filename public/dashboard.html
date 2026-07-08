@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · Bharath Bank of India</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff8f1c'/><text x='50' y='68' font-size='48' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%230b2447'>B</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="dashboard.html">
+        <span class="brand-mark">BBI</span>
+        <span class="brand-text">Bharath Bank of India</span>
+      </a>
+      <nav class="nav">
+        <button class="linkbtn" onclick="show('home')">Dashboard</button>
+        <button class="linkbtn" onclick="show('transfer')">Transfer</button>
+        <button class="linkbtn" onclick="show('statement')">Transactions</button>
+        <button class="linkbtn" onclick="show('profile')">Profile</button>
+        <button class="linkbtn btn-ghost" onclick="doLogout()">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="flash" class="flash-stack"></div>
+
+    <!-- HOME -->
+    <section id="view-home">
+      <div class="grid grid-2">
+        <div class="card balance-card">
+          <div class="balance-label">Available Balance · <span id="acc-type"></span></div>
+          <div class="balance-amount" id="balance"></div>
+          <div class="acc-meta">
+            <div><b id="acc-num"></b>Account Number</div>
+            <div><b id="acc-ifsc"></b>IFSC Code</div>
+            <div><b id="acc-status"></b>Status</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Quick actions</h2>
+          <div class="sub">What would you like to do?</div>
+          <div class="actions">
+            <button class="action" onclick="show('deposit')"><span class="ico">➕</span>Deposit</button>
+            <button class="action" onclick="show('withdraw')"><span class="ico">➖</span>Withdraw</button>
+            <button class="action" onclick="show('transfer')"><span class="ico">↗</span>Transfer</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="section-head">
+          <h2>Recent activity</h2>
+          <span class="link" onclick="show('statement')">View full statement →</span>
+        </div>
+        <div id="recent"></div>
+      </div>
+    </section>
+
+    <!-- DEPOSIT -->
+    <section id="view-deposit" class="hidden">
+      <div class="auth-wrap"><div class="card">
+        <h2>Deposit money</h2><div class="sub" id="dep-sub"></div>
+        <form onsubmit="return doDeposit(event)">
+          <div class="form-row"><label>Amount (₹)</label><input id="dep-amt" type="number" min="0.01" step="0.01" required></div>
+          <div class="form-row"><label>Note (optional)</label><input id="dep-note" placeholder="Cash deposit"></div>
+          <button class="btn btn-primary btn-block" type="submit">Deposit</button>
+        </form>
+        <div class="form-foot"><span class="link" onclick="show('home')">← Back to dashboard</span></div>
+      </div></div>
+    </section>
+
+    <!-- WITHDRAW -->
+    <section id="view-withdraw" class="hidden">
+      <div class="auth-wrap"><div class="card">
+        <h2>Withdraw money</h2><div class="sub" id="wd-sub"></div>
+        <form onsubmit="return doWithdraw(event)">
+          <div class="form-row"><label>Amount (₹)</label><input id="wd-amt" type="number" min="0.01" step="0.01" required></div>
+          <div class="form-row"><label>Note (optional)</label><input id="wd-note" placeholder="Cash withdrawal"></div>
+          <button class="btn btn-navy btn-block" type="submit">Withdraw</button>
+        </form>
+        <div class="form-foot"><span class="link" onclick="show('home')">← Back to dashboard</span></div>
+      </div></div>
+    </section>
+
+    <!-- TRANSFER -->
+    <section id="view-transfer" class="hidden">
+      <div class="auth-wrap"><div class="card">
+        <h2>Transfer money</h2><div class="sub" id="tr-sub"></div>
+        <form onsubmit="return doTransfer(event)">
+          <div class="form-row"><label>Payee account number (BBI)</label>
+            <input id="tr-to" required placeholder="e.g. 172912345678">
+            <div class="hint">Must be a Bharath Bank of India account number.</div></div>
+          <div class="form-row"><label>Amount (₹)</label><input id="tr-amt" type="number" min="0.01" step="0.01" required></div>
+          <div class="form-row"><label>Note (optional)</label><input id="tr-note" placeholder="Fund transfer"></div>
+          <button class="btn btn-primary btn-block" type="submit">Send Money</button>
+        </form>
+        <div class="form-foot"><span class="link" onclick="show('home')">← Back to dashboard</span></div>
+      </div></div>
+    </section>
+
+    <!-- STATEMENT -->
+    <section id="view-statement" class="hidden">
+      <div class="card">
+        <div class="section-head">
+          <div><h2>Account statement</h2><div class="sub" id="st-sub"></div></div>
+          <div class="filters">
+            <button data-f="ALL" class="active" onclick="setFilter('ALL')">All</button>
+            <button data-f="CREDIT" onclick="setFilter('CREDIT')">Credits</button>
+            <button data-f="DEBIT" onclick="setFilter('DEBIT')">Debits</button>
+          </div>
+        </div>
+        <div id="statement"></div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="view-profile" class="hidden">
+      <div class="grid grid-2">
+        <div class="card"><h2>Account holder</h2><div class="sub">Your personal details</div>
+          <div id="profile-user"></div></div>
+        <div class="card"><h2>Account details</h2><div class="sub">Bharath Bank of India</div>
+          <div id="profile-acc"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div><strong>Bharath Bank of India</strong><br>Bharath Nagar Main Branch, Hyderabad · IFSC BBIN0001729</div>
+      <div>Demonstration application · Not a real bank, holds no real money.</div>
+    </div>
+  </footer>
+
+  <script src="bank.js"></script>
+  <script>
+    const fmt = Bank.fmtINR;
+    let stFilter = "ALL";
+
+    function guard() {
+      const u = Bank.currentUser();
+      if (!u) { location.href = "index.html"; return null; }
+      return u;
+    }
+    function flash(msg, kind) {
+      document.getElementById("flash").innerHTML =
+        '<div class="flash flash-' + (kind || "info") + '">' + msg + '</div>';
+      window.scrollTo(0, 0);
+    }
+    function doLogout() { Bank.logout(); location.href = "index.html"; }
+
+    function show(view) {
+      ["home","deposit","withdraw","transfer","statement","profile"].forEach(v =>
+        document.getElementById("view-" + v).classList.toggle("hidden", v !== view));
+      render();
+      window.scrollTo(0, 0);
+    }
+
+    function txnRows(list) {
+      if (!list.length) return '<div class="empty">No transactions yet.</div>';
+      let rows = list.map(t => `
+        <tr>
+          <td class="muted">${t.createdAt.slice(0,16)}</td>
+          <td>${t.description}</td>
+          <td>${t.ref}</td>
+          <td>${t.txnType === 'CREDIT'
+              ? '<span class="pill pill-credit">CREDIT</span>'
+              : '<span class="pill pill-debit">DEBIT</span>'}</td>
+          <td class="${t.txnType === 'CREDIT' ? 'amt-credit' : 'amt-debit'}">
+            ${t.txnType === 'CREDIT' ? '+' : '−'}${fmt(t.amountPaise)}</td>
+          <td>${fmt(t.balancePaise)}</td>
+        </tr>`).join("");
+      return `<table class="txn-table"><thead><tr>
+          <th>Date</th><th>Description</th><th>Ref No</th><th>Type</th><th>Amount</th><th>Balance</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function render() {
+      const u = guard(); if (!u) return;
+      document.getElementById("acc-type").textContent = u.accountType;
+      document.getElementById("balance").textContent = fmt(u.balancePaise);
+      document.getElementById("acc-num").textContent = u.accountNumber;
+      document.getElementById("acc-ifsc").textContent = u.ifsc;
+      document.getElementById("acc-status").textContent = u.status;
+
+      const recent = Bank.txnsFor(u.accountNumber, "ALL").slice(0, 5);
+      document.getElementById("recent").innerHTML = txnRows(recent);
+
+      document.getElementById("dep-sub").textContent = `Into ${u.accountNumber} · Balance ${fmt(u.balancePaise)}`;
+      document.getElementById("wd-sub").textContent = `From ${u.accountNumber} · Balance ${fmt(u.balancePaise)}`;
+      document.getElementById("tr-sub").textContent = `From ${u.accountNumber} · Balance ${fmt(u.balancePaise)}`;
+      document.getElementById("st-sub").textContent = `${u.accountNumber} · ${u.ifsc} · Balance ${fmt(u.balancePaise)}`;
+
+      document.getElementById("statement").innerHTML = txnRows(Bank.txnsFor(u.accountNumber, stFilter));
+
+      document.getElementById("profile-user").innerHTML =
+        row("Full name", u.fullName) + row("Email", u.email) + row("Mobile", u.phone) + row("Customer since", u.createdAt.slice(0,10));
+      document.getElementById("profile-acc").innerHTML =
+        row("Account number", u.accountNumber) + row("Account type", u.accountType) +
+        row("IFSC code", u.ifsc) + row("Branch", Bank.BANK.BRANCH) +
+        row("Balance", fmt(u.balancePaise)) + row("Status", u.status);
+    }
+    function row(k, v) {
+      return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)">
+        <span class="muted">${k}</span><b>${v}</b></div>`;
+    }
+
+    function setFilter(f) {
+      stFilter = f;
+      document.querySelectorAll(".filters button").forEach(b =>
+        b.classList.toggle("active", b.dataset.f === f));
+      render();
+    }
+
+    function doDeposit(e) {
+      e.preventDefault();
+      try { const a = Bank.deposit(document.getElementById("dep-amt").value, document.getElementById("dep-note").value.trim());
+        show('home'); flash(fmt(a) + " deposited successfully.", "success"); }
+      catch (err) { flash(err.message, "danger"); }
+      return false;
+    }
+    function doWithdraw(e) {
+      e.preventDefault();
+      try { const a = Bank.withdraw(document.getElementById("wd-amt").value, document.getElementById("wd-note").value.trim());
+        show('home'); flash(fmt(a) + " withdrawn successfully.", "success"); }
+      catch (err) { flash(err.message, "danger"); }
+      return false;
+    }
+    function doTransfer(e) {
+      e.preventDefault();
+      try { const r = Bank.transfer(document.getElementById("tr-to").value,
+              document.getElementById("tr-amt").value, document.getElementById("tr-note").value.trim());
+        show('home'); flash(`${fmt(r.amount)} transferred to ${r.payee} (Ref ${r.ref}).`, "success"); }
+      catch (err) { flash(err.message, "danger"); }
+      return false;
+    }
+
+    show('home');
+  </script>
+</body>
+</html>
