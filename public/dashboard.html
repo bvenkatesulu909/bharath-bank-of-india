@@ -8,6 +8,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="tricolor-strip" aria-hidden="true">
+    <div class="band band-saffron"></div>
+    <div class="band band-white"><span class="chakra"></span></div>
+    <div class="band band-green"></div>
+  </div>
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="dashboard.html">
@@ -17,6 +22,9 @@
       <nav class="nav">
         <button class="linkbtn" onclick="show('home')">Dashboard</button>
         <button class="linkbtn" onclick="show('transfer')">Transfer</button>
+        <button class="linkbtn" onclick="show('deposits')">Deposits</button>
+        <button class="linkbtn" onclick="show('loans')">Loans</button>
+        <button class="linkbtn" onclick="show('kyc')">KYC</button>
         <button class="linkbtn" onclick="show('statement')">Transactions</button>
         <button class="linkbtn" onclick="show('profile')">Profile</button>
         <button class="linkbtn btn-ghost" onclick="doLogout()">Logout</button>
@@ -124,6 +132,226 @@
           <div id="profile-acc"></div></div>
       </div>
     </section>
+
+    <!-- DEPOSITS -->
+    <section id="view-deposits" class="hidden">
+      <div class="card">
+        <div class="section-head">
+          <h2>Deposits (FD/RD)</h2>
+          <button class="btn btn-primary" onclick="show('open-deposit')">+ Open Deposit</button>
+        </div>
+        <div id="deposits-list"></div>
+      </div>
+    </section>
+
+    <!-- OPEN DEPOSIT -->
+    <section id="view-open-deposit" class="hidden">
+      <div class="auth-wrap"><div class="card">
+        <h2>Open a Fixed/Recurring Deposit</h2><div class="sub" id="od-sub"></div>
+        <form onsubmit="return doOpenDeposit(event)">
+          <div class="form-row">
+            <label>Scheme</label>
+            <select id="od-scheme" required onchange="updateDepositEstimate()">
+              <option value="">Choose a deposit scheme...</option>
+            </select>
+            <div class="hint" id="od-scheme-hint"></div>
+          </div>
+          <div class="form-row">
+            <label>Amount (₹)</label>
+            <input id="od-amount" type="number" min="0.01" step="0.01" required onchange="updateDepositEstimate()" oninput="updateDepositEstimate()">
+            <div class="hint" id="od-amount-hint"></div>
+          </div>
+          <div class="form-row">
+            <label>Tenure (months)</label>
+            <input id="od-tenure" type="number" min="1" step="1" required onchange="updateDepositEstimate()" oninput="updateDepositEstimate()">
+            <div class="hint" id="od-tenure-hint"></div>
+          </div>
+          <div class="estimate" id="od-estimate" style="display:none;">
+            <div style="display:flex;justify-content:space-between;margin:8px 0;">
+              <span>Principal:</span> <b id="od-est-principal"></b>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin:8px 0;">
+              <span>Expected Interest:</span> <b id="od-est-interest"></b>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin:8px 0;border-top:1px solid var(--line);padding-top:8px;">
+              <span>Maturity Value:</span> <b id="od-est-maturity"></b>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin:8px 0;font-size:0.9em;color:var(--muted);">
+              <span>Maturity Date:</span> <b id="od-est-date"></b>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Open Deposit</button>
+        </form>
+        <div class="form-foot"><span class="link" onclick="show('deposits')">← Back to deposits</span></div>
+      </div></div>
+    </section>
+
+    <!-- LOANS -->
+    <section id="view-loans" class="hidden">
+      <div class="card">
+        <div class="section-head">
+          <h2>Loans</h2>
+          <button class="btn btn-primary" onclick="show('apply-loan')">+ Apply for Loan</button>
+        </div>
+        <div id="loans-list"></div>
+      </div>
+    </section>
+
+    <!-- APPLY LOAN -->
+    <section id="view-apply-loan" class="hidden">
+      <div class="auth-wrap"><div class="card">
+        <h2>Apply for a Loan</h2><div class="sub" id="al-sub"></div>
+        <div id="al-kyc-warning" class="flash flash-warning" style="display:none;margin-bottom:16px;">
+          Please complete your KYC (including annual income) to apply for a loan.
+          <span class="link" onclick="show('kyc')">Go to KYC →</span>
+        </div>
+        <form onsubmit="return doApplyLoan(event)" id="al-form">
+          <div class="form-row">
+            <label>Loan Product</label>
+            <select id="al-product" required onchange="updateLoanEstimate()">
+              <option value="">Choose a loan product...</option>
+            </select>
+            <div class="hint" id="al-product-hint"></div>
+          </div>
+          <div class="form-row">
+            <label>Loan Amount (₹)</label>
+            <input id="al-amount" type="number" min="0.01" step="0.01" required onchange="updateLoanEstimate()" oninput="updateLoanEstimate()">
+            <div class="hint" id="al-amount-hint"></div>
+          </div>
+          <div class="form-row">
+            <label>Tenure (months)</label>
+            <input id="al-tenure" type="number" min="6" step="1" required onchange="updateLoanEstimate()" oninput="updateLoanEstimate()">
+            <div class="hint" id="al-tenure-hint"></div>
+          </div>
+          <div class="form-row">
+            <label>Purpose (optional)</label>
+            <input id="al-purpose" placeholder="What will you use the loan for?">
+          </div>
+          <div class="estimate" id="al-estimate" style="display:none;">
+            <div style="display:flex;justify-content:space-between;margin:8px 0;">
+              <span>Monthly EMI:</span> <b id="al-est-emi"></b>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin:8px 0;">
+              <span>Total Interest:</span> <b id="al-est-interest"></b>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin:8px 0;border-top:1px solid var(--line);padding-top:8px;">
+              <span>Total Payable:</span> <b id="al-est-total"></b>
+            </div>
+            <div id="al-eligibility" style="margin-top:12px;padding:8px;border-radius:4px;font-size:0.9em;"></div>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="al-submit">Apply for Loan</button>
+        </form>
+        <div class="form-foot"><span class="link" onclick="show('loans')">← Back to loans</span></div>
+      </div></div>
+    </section>
+
+    <!-- LOAN DETAIL -->
+    <section id="view-loan-detail" class="hidden">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div>
+            <h2 id="ld-title"></h2>
+            <div class="sub" id="ld-subtitle"></div>
+          </div>
+          <div id="ld-status"></div>
+        </div>
+        <div class="grid grid-2" style="margin-bottom:20px;">
+          <div style="padding:12px;background:var(--bg-alt);border-radius:4px;">
+            <div class="muted" style="font-size:0.85em;margin-bottom:4px;">Outstanding</div>
+            <div style="font-size:1.3em;font-weight:bold;" id="ld-outstanding"></div>
+          </div>
+          <div style="padding:12px;background:var(--bg-alt);border-radius:4px;">
+            <div class="muted" style="font-size:0.85em;margin-bottom:4px;">Monthly EMI</div>
+            <div style="font-size:1.3em;font-weight:bold;" id="ld-emi"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <h3>Amortization Schedule (12-month view)</h3>
+          <div id="ld-schedule"></div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <h3>Payment History</h3>
+          <div id="ld-payments"></div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="doPayEmi()" id="ld-pay-btn" style="display:none;">Pay Next EMI</button>
+        <div class="form-foot"><span class="link" onclick="show('loans')">← Back to loans</span></div>
+      </div>
+    </section>
+
+    <!-- KYC -->
+    <section id="view-kyc" class="hidden">
+      <div class="auth-wrap"><div class="card">
+        <h2>KYC Profile</h2>
+        <div id="kyc-status" style="margin-bottom:16px;"></div>
+        <form onsubmit="return doSaveKyc(event)">
+          <div class="form-row">
+            <label>Date of Birth</label>
+            <input id="kyc-dob" type="date">
+          </div>
+          <div class="form-row">
+            <label>Gender</label>
+            <select id="kyc-gender">
+              <option value="">Select...</option>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+              <option value="O">Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Address</label>
+            <input id="kyc-address" placeholder="Street address">
+          </div>
+          <div class="form-row">
+            <label>City</label>
+            <input id="kyc-city" placeholder="City">
+          </div>
+          <div class="form-row">
+            <label>State</label>
+            <input id="kyc-state" placeholder="State">
+          </div>
+          <div class="form-row">
+            <label>Pincode</label>
+            <input id="kyc-pincode" placeholder="6-digit pincode">
+          </div>
+          <div class="form-row">
+            <label>PAN</label>
+            <input id="kyc-pan" placeholder="10-digit PAN (e.g., ABCDE1234F)" style="text-transform:uppercase;">
+          </div>
+          <div class="form-row">
+            <label>Aadhaar (last 4 digits)</label>
+            <input id="kyc-aadhaar" maxlength="4" placeholder="Last 4 digits">
+          </div>
+          <div class="form-row">
+            <label>Occupation</label>
+            <select id="kyc-occupation">
+              <option value="">Select...</option>
+              <option value="Salaried">Salaried</option>
+              <option value="Self-Employed">Self-Employed</option>
+              <option value="Business">Business</option>
+              <option value="Professional">Professional</option>
+              <option value="Retired">Retired</option>
+              <option value="Student">Student</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Annual Income (₹)</label>
+            <input id="kyc-income" type="number" min="0" step="0.01" placeholder="Annual income in rupees">
+            <div class="hint">Required for loan eligibility.</div>
+          </div>
+          <div class="form-row">
+            <label>Nominee Name</label>
+            <input id="kyc-nominee" placeholder="Full name">
+          </div>
+          <div class="form-row">
+            <label>Nominee Relation</label>
+            <input id="kyc-relation" placeholder="e.g., Spouse, Parent, Child">
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Save KYC</button>
+        </form>
+        <div class="form-foot"><span class="link" onclick="show('home')">← Back to dashboard</span></div>
+      </div></div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -151,7 +379,7 @@
     function doLogout() { Bank.logout(); location.href = "index.html"; }
 
     function show(view) {
-      ["home","deposit","withdraw","transfer","statement","profile"].forEach(v =>
+      ["home","deposit","withdraw","transfer","deposits","open-deposit","loans","apply-loan","loan-detail","kyc","statement","profile"].forEach(v =>
         document.getElementById("view-" + v).classList.toggle("hidden", v !== view));
       render();
       window.scrollTo(0, 0);
@@ -236,6 +464,444 @@
       return false;
     }
 
+    // ---- DEPOSITS (FD/RD) -------------------------------------------------
+    function renderDeposits() {
+      const u = guard(); if (!u) return;
+      const deps = Bank.depositsFor(u.id);
+      if (!deps.length) {
+        document.getElementById("deposits-list").innerHTML = '<div class="empty">No deposits yet. Open one to start saving.</div>';
+        return;
+      }
+      const rows = deps.map(d => {
+        const matured = new Date(d.maturityDate) <= new Date();
+        const daysLeft = Math.ceil((new Date(d.maturityDate) - new Date()) / (1000 * 60 * 60 * 24));
+        let html = `<div class="deposit-card" style="padding:16px;background:var(--bg-alt);border-radius:4px;margin:12px 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+            <div>
+              <div style="font-weight:bold;font-size:1.1em;">${d.schemeName}</div>
+              <div class="muted" style="font-size:0.85em;">${d.depositType} · Ref ${d.refNo}</div>
+            </div>
+            <span class="status" style="font-size:0.85em;background:${d.status === 'ACTIVE' ? 'var(--success-light)' : 'var(--muted-light)'};color:${d.status === 'ACTIVE' ? 'var(--success)' : 'var(--muted)'};">${d.status}</span>
+          </div>
+          <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));gap:12px;margin:12px 0;">
+            <div><div class="muted" style="font-size:0.85em;">Principal</div><div style="font-weight:bold;">${fmt(d.principalPaise)}</div></div>
+            <div><div class="muted" style="font-size:0.85em;">Interest Rate</div><div style="font-weight:bold;">${d.interestRate}%</div></div>
+            <div><div class="muted" style="font-size:0.85em;">Expected Maturity</div><div style="font-weight:bold;">${fmt(d.maturityPaise)}</div></div>
+            ${d.depositType === 'RD' ? `<div><div class="muted" style="font-size:0.85em;">Installments Paid</div><div style="font-weight:bold;">${d.installmentsPaid}/${d.tenureMonths}</div></div>` : ''}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0;padding:12px;background:var(--bg);border-radius:4px;">
+            <div>
+              <div class="muted" style="font-size:0.85em;">Maturity Date</div>
+              <div style="font-weight:bold;">${d.maturityDate}</div>
+              ${!matured ? `<div class="muted" style="font-size:0.8em;">${daysLeft > 0 ? daysLeft + ' days left' : 'Matured'}</div>` : '<div style="color:var(--success);font-size:0.8em;font-weight:bold;">Ready to close</div>'}
+            </div>
+            <div style="display:flex;gap:8px;">`;
+        if (d.depositType === 'RD' && d.installmentsPaid < d.tenureMonths && d.status === 'ACTIVE') {
+          html += `<button class="btn btn-sm" onclick="doPayRdInstallment(${d.id})">Pay Installment</button>`;
+        }
+        html += `<button class="btn btn-primary btn-sm" onclick="doCloseDeposit(${d.id})">${matured ? 'Close & Withdraw' : 'Close Early'}</button>`;
+        html += `</div></div></div>`;
+        return html;
+      }).join("");
+      document.getElementById("deposits-list").innerHTML = rows;
+    }
+
+    function updateDepositEstimate() {
+      const schemeCode = document.getElementById("od-scheme").value;
+      const amount = parseFloat(document.getElementById("od-amount").value) || 0;
+      const tenure = parseInt(document.getElementById("od-tenure").value) || 0;
+      const scheme = Bank.SCHEMES.find(s => s.code === schemeCode);
+
+      document.getElementById("od-estimate").style.display = "none";
+      document.getElementById("od-amount-hint").textContent = "";
+      document.getElementById("od-tenure-hint").textContent = "";
+
+      if (!scheme) return;
+
+      // Validation hints
+      if (scheme.minAmountPaise && amount * 100 < scheme.minAmountPaise) {
+        document.getElementById("od-amount-hint").textContent =
+          `Minimum: ${fmt(scheme.minAmountPaise)}${scheme.category === 'RD' ? ' per month' : ''}`;
+      }
+      if (scheme.minMonths && tenure < scheme.minMonths) {
+        document.getElementById("od-tenure-hint").textContent =
+          `Minimum: ${scheme.minMonths} months`;
+      }
+      if (scheme.maxMonths && tenure > scheme.maxMonths) {
+        document.getElementById("od-tenure-hint").textContent =
+          `Maximum: ${scheme.maxMonths} months`;
+      }
+
+      if (amount <= 0 || tenure <= 0 || (scheme.minAmountPaise && amount * 100 < scheme.minAmountPaise)) return;
+
+      const amountPaise = Math.round(amount * 100);
+      let maturityPaise, totalInvested;
+
+      if (scheme.category === 'FD') {
+        maturityPaise = Bank.fdMaturityPaise(amountPaise, scheme.rate, tenure);
+        totalInvested = amountPaise;
+      } else {
+        maturityPaise = Bank.rdMaturityPaise(amountPaise, scheme.rate, tenure);
+        totalInvested = amountPaise * tenure;
+      }
+
+      const interest = maturityPaise - totalInvested;
+      const maturityDate = Bank.addMonths(new Date(), tenure);
+
+      document.getElementById("od-est-principal").textContent = fmt(totalInvested);
+      document.getElementById("od-est-interest").textContent = fmt(interest);
+      document.getElementById("od-est-maturity").textContent = fmt(maturityPaise);
+      document.getElementById("od-est-date").textContent = maturityDate;
+      document.getElementById("od-estimate").style.display = "block";
+    }
+
+    function doOpenDeposit(e) {
+      e.preventDefault();
+      try {
+        const schemeCode = document.getElementById("od-scheme").value;
+        const amount = document.getElementById("od-amount").value;
+        const tenure = document.getElementById("od-tenure").value;
+        const dep = Bank.openDeposit(schemeCode, amount, tenure);
+        document.getElementById("od-scheme").value = "";
+        document.getElementById("od-amount").value = "";
+        document.getElementById("od-tenure").value = "";
+        show('deposits');
+        flash(`${dep.schemeName} opened for ${fmt(dep.principalPaise)}. Maturity: ${fmt(dep.maturityPaise)}`, "success");
+      } catch (err) {
+        flash(err.message, "danger");
+      }
+      return false;
+    }
+
+    function doPayRdInstallment(depId) {
+      try {
+        const dep = Bank.payInstallment(depId);
+        flash(`RD installment (${fmt(dep.principalPaise)}) paid. ${dep.installmentsPaid}/${dep.tenureMonths} installments complete.`, "success");
+        show('deposits');
+      } catch (err) {
+        flash(err.message, "danger");
+      }
+    }
+
+    function doCloseDeposit(depId) {
+      try {
+        const result = Bank.closeDeposit(depId);
+        flash(`Deposit ${result.note}. ${fmt(result.credit)} credited to savings.`, "success");
+        show('deposits');
+      } catch (err) {
+        flash(err.message, "danger");
+      }
+    }
+
+    // ---- LOANS ---------------------------------------------------------
+    function renderLoans() {
+      const u = guard(); if (!u) return;
+      const profile = Bank.getProfile(u.id);
+      if (!profile || !profile.annualIncomePaise) {
+        document.getElementById("loans-list").innerHTML =
+          '<div class="flash flash-warning">Please complete your KYC (including annual income) to apply for a loan. <span class="link" onclick="show(\'kyc\')">Go to KYC →</span></div>';
+        return;
+      }
+
+      const lns = Bank.loansFor(u.id);
+      if (!lns.length) {
+        document.getElementById("loans-list").innerHTML = '<div class="empty">No loans yet.</div>';
+        return;
+      }
+
+      const rows = lns.map(l => {
+        const statusColor = l.status === 'ACTIVE' ? 'var(--success-light)' : (l.status === 'CLOSED' ? 'var(--muted-light)' : 'var(--danger-light)');
+        const statusTextColor = l.status === 'ACTIVE' ? 'var(--success)' : (l.status === 'CLOSED' ? 'var(--muted)' : 'var(--danger)');
+        let html = `<div style="padding:16px;background:var(--bg-alt);border-radius:4px;margin:12px 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+            <div>
+              <div style="font-weight:bold;font-size:1.1em;">${l.productName}</div>
+              <div class="muted" style="font-size:0.85em;">Loan Account: ${l.loanAccount}</div>
+            </div>
+            <span class="status" style="font-size:0.85em;background:${statusColor};color:${statusTextColor};">${l.status}</span>
+          </div>`;
+
+        if (l.status === 'REJECTED') {
+          html += `<div style="padding:8px;background:var(--bg);border-radius:4px;margin:12px 0;">
+            <div class="muted" style="font-size:0.85em;">Reason</div>
+            <div style="font-size:0.9em;">${l.decisionReason}</div>
+          </div>`;
+        }
+
+        html += `<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));gap:12px;margin:12px 0;">
+          <div><div class="muted" style="font-size:0.85em;">Principal</div><div style="font-weight:bold;">${fmt(l.principalPaise)}</div></div>
+          <div><div class="muted" style="font-size:0.85em;">Monthly EMI</div><div style="font-weight:bold;">${fmt(l.emiPaise)}</div></div>
+          <div><div class="muted" style="font-size:0.85em;">Outstanding</div><div style="font-weight:bold;">${fmt(l.outstandingPaise)}</div></div>
+          <div><div class="muted" style="font-size:0.85em;">EMIs Paid</div><div style="font-weight:bold;">${l.emisPaid}/${l.tenureMonths}</div></div>
+        </div>`;
+
+        if (l.status === 'ACTIVE') {
+          html += `<button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="showLoanDetail(${l.id})">View & Pay</button>`;
+        }
+        html += `</div>`;
+        return html;
+      }).join("");
+      document.getElementById("loans-list").innerHTML = rows;
+    }
+
+    let currentLoanDetailId = null;
+
+    function showLoanDetail(loanId) {
+      currentLoanDetailId = loanId;
+      const u = guard(); if (!u) return;
+      const loan = Bank.loanById(loanId);
+      if (!loan) {
+        flash("Loan not found.", "danger");
+        return;
+      }
+
+      document.getElementById("ld-title").textContent = loan.productName;
+      document.getElementById("ld-subtitle").textContent = `Loan Account: ${loan.loanAccount}`;
+      document.getElementById("ld-outstanding").textContent = fmt(loan.outstandingPaise);
+      document.getElementById("ld-emi").textContent = fmt(loan.emiPaise);
+
+      const statusSpan = document.getElementById("ld-status");
+      statusSpan.innerHTML = `<span class="status" style="font-size:0.85em;background:${loan.status === 'ACTIVE' ? 'var(--success-light)' : 'var(--muted-light)'};color:${loan.status === 'ACTIVE' ? 'var(--success)' : 'var(--muted)'};">${loan.status}</span>`;
+
+      // Amortization schedule (12-month view)
+      const schedule = Bank.amortizationSchedule(loan.principalPaise, loan.interestRate, loan.tenureMonths, loan.emiPaise).slice(0, 12);
+      const scheduleHtml = `<table class="txn-table" style="font-size:0.9em;">
+        <thead><tr><th>EMI No</th><th>EMI Amount</th><th>Principal</th><th>Interest</th><th>Outstanding</th></tr></thead>
+        <tbody>${schedule.map(s => `<tr>
+          <td>${s.emiNo}</td>
+          <td>${fmt(s.emiPaise)}</td>
+          <td>${fmt(s.principalPaise)}</td>
+          <td>${fmt(s.interestPaise)}</td>
+          <td>${fmt(s.outstandingPaise)}</td>
+        </tr>`).join("")}</tbody>
+      </table>`;
+      document.getElementById("ld-schedule").innerHTML = scheduleHtml;
+
+      // Payment history
+      const payments = Bank.loanPaymentsFor(loanId);
+      if (payments.length) {
+        const payHtml = `<table class="txn-table" style="font-size:0.9em;">
+          <thead><tr><th>EMI No</th><th>Amount Paid</th><th>Principal</th><th>Interest</th><th>Date</th></tr></thead>
+          <tbody>${payments.map(p => `<tr>
+            <td>${p.emiNo}</td>
+            <td>${fmt(p.amountPaise)}</td>
+            <td>${fmt(p.principalPaise)}</td>
+            <td>${fmt(p.interestPaise)}</td>
+            <td>${p.paidAt.slice(0, 10)}</td>
+          </tr>`).join("")}</tbody>
+        </table>`;
+        document.getElementById("ld-payments").innerHTML = payHtml;
+      } else {
+        document.getElementById("ld-payments").innerHTML = '<div class="empty">No payments yet.</div>';
+      }
+
+      // Pay button
+      const payBtn = document.getElementById("ld-pay-btn");
+      payBtn.style.display = loan.status === 'ACTIVE' ? 'block' : 'none';
+
+      show('loan-detail');
+    }
+
+    function doPayEmi() {
+      try {
+        const result = Bank.payEmi(currentLoanDetailId);
+        flash(`EMI #${result.emiNo} (${fmt(result.pay)}) paid. ${result.closed ? 'Loan closed!' : 'Outstanding: ' + fmt(result.outstanding)}`, "success");
+        showLoanDetail(currentLoanDetailId);
+      } catch (err) {
+        flash(err.message, "danger");
+      }
+    }
+
+    function updateLoanEstimate() {
+      const productCode = document.getElementById("al-product").value;
+      const amount = parseFloat(document.getElementById("al-amount").value) || 0;
+      const tenure = parseInt(document.getElementById("al-tenure").value) || 0;
+      const product = Bank.LOAN_PRODUCTS.find(p => p.code === productCode);
+      const u = guard(); if (!u) return;
+      const profile = Bank.getProfile(u.id);
+
+      document.getElementById("al-estimate").style.display = "none";
+      document.getElementById("al-product-hint").textContent = "";
+      document.getElementById("al-amount-hint").textContent = "";
+      document.getElementById("al-tenure-hint").textContent = "";
+      document.getElementById("al-eligibility").innerHTML = "";
+
+      if (!product) return;
+      if (!profile || !profile.annualIncomePaise) {
+        document.getElementById("al-kyc-warning").style.display = "block";
+        document.getElementById("al-form").style.display = "none";
+        return;
+      }
+      document.getElementById("al-kyc-warning").style.display = "none";
+      document.getElementById("al-form").style.display = "block";
+
+      // Hints
+      if (amount * 100 < product.minAmountPaise) {
+        document.getElementById("al-amount-hint").textContent =
+          `Minimum: ${fmt(product.minAmountPaise)}`;
+      }
+      if (amount * 100 > product.maxAmountPaise) {
+        document.getElementById("al-amount-hint").textContent =
+          `Maximum: ${fmt(product.maxAmountPaise)}`;
+      }
+      if (tenure < 6) {
+        document.getElementById("al-tenure-hint").textContent = "Minimum: 6 months";
+      }
+      if (tenure > product.maxTenureMonths) {
+        document.getElementById("al-tenure-hint").textContent =
+          `Maximum: ${product.maxTenureMonths} months`;
+      }
+
+      if (amount <= 0 || tenure <= 0) return;
+
+      const amountPaise = Math.round(amount * 100);
+      try {
+        const totals = Bank.loanTotals(amountPaise, product.rate, tenure);
+        const monthlyIncome = profile.annualIncomePaise / 12;
+        const foirOk = totals.emi <= 0.55 * monthlyIncome;
+        const amountOk = amountPaise >= product.minAmountPaise && amountPaise <= product.maxAmountPaise;
+        const tenureOk = tenure >= 6 && tenure <= product.maxTenureMonths;
+
+        document.getElementById("al-est-emi").textContent = fmt(totals.emi);
+        document.getElementById("al-est-interest").textContent = fmt(totals.totalInterest);
+        document.getElementById("al-est-total").textContent = fmt(totals.totalPayable);
+
+        let eligHtml = "";
+        if (!amountOk || !tenureOk) {
+          eligHtml = '<div style="color:var(--danger);background:var(--danger-light);padding:8px;border-radius:4px;">❌ Amount or tenure out of range</div>';
+        } else if (!foirOk) {
+          eligHtml = '<div style="color:var(--danger);background:var(--danger-light);padding:8px;border-radius:4px;">❌ EMI exceeds 55% of monthly income (FOIR limit)</div>';
+        } else {
+          eligHtml = '<div style="color:var(--success);background:var(--success-light);padding:8px;border-radius:4px;">✓ Eligible for this loan</div>';
+        }
+        document.getElementById("al-eligibility").innerHTML = eligHtml;
+        document.getElementById("al-estimate").style.display = "block";
+      } catch (e) {
+        // Silently skip if math fails
+      }
+    }
+
+    function doApplyLoan(e) {
+      e.preventDefault();
+      try {
+        const productCode = document.getElementById("al-product").value;
+        const amount = document.getElementById("al-amount").value;
+        const tenure = document.getElementById("al-tenure").value;
+        const purpose = document.getElementById("al-purpose").value;
+        const result = Bank.applyLoan(productCode, amount, tenure, purpose);
+        document.getElementById("al-product").value = "";
+        document.getElementById("al-amount").value = "";
+        document.getElementById("al-tenure").value = "";
+        document.getElementById("al-purpose").value = "";
+        show('loans');
+        if (result.approved) {
+          flash(`${result.loan.productName} approved! ${fmt(result.loan.principalPaise)} disbursed. EMI: ${fmt(result.loan.emiPaise)}/month`, "success");
+        } else {
+          flash(`Loan application rejected: ${result.reason}`, "warning");
+        }
+      } catch (err) {
+        if (err.needKyc) {
+          flash(err.message, "warning");
+          show('kyc');
+        } else {
+          flash(err.message, "danger");
+        }
+      }
+      return false;
+    }
+
+    // ---- KYC ----
+    function renderKyc() {
+      const u = guard(); if (!u) return;
+      const profile = Bank.getProfile(u.id);
+
+      // Populate form
+      if (profile) {
+        document.getElementById("kyc-dob").value = profile.dob || "";
+        document.getElementById("kyc-gender").value = profile.gender || "";
+        document.getElementById("kyc-address").value = profile.address || "";
+        document.getElementById("kyc-city").value = profile.city || "";
+        document.getElementById("kyc-state").value = profile.state || "";
+        document.getElementById("kyc-pincode").value = profile.pincode || "";
+        document.getElementById("kyc-pan").value = profile.pan || "";
+        document.getElementById("kyc-aadhaar").value = profile.aadhaarLast4 || "";
+        document.getElementById("kyc-occupation").value = profile.occupation || "";
+        document.getElementById("kyc-income").value = profile.annualIncomePaise ? (profile.annualIncomePaise / 100) : "";
+        document.getElementById("kyc-nominee").value = profile.nomineeName || "";
+        document.getElementById("kyc-relation").value = profile.nomineeRelation || "";
+      }
+
+      // Status
+      const statusDiv = document.getElementById("kyc-status");
+      if (profile && profile.kycStatus === 'VERIFIED') {
+        statusDiv.innerHTML = '<div class="flash flash-success">✓ Your KYC is verified and up to date. You are eligible for loans.</div>';
+      } else if (profile) {
+        statusDiv.innerHTML = '<div class="flash flash-warning">⚠ KYC is pending. Complete all core fields to get verified.</div>';
+      } else {
+        statusDiv.innerHTML = '<div class="flash flash-info">ℹ Please fill in your KYC details to proceed.</div>';
+      }
+    }
+
+    function doSaveKyc(e) {
+      e.preventDefault();
+      try {
+        const fields = {
+          dob: document.getElementById("kyc-dob").value,
+          gender: document.getElementById("kyc-gender").value,
+          address: document.getElementById("kyc-address").value,
+          city: document.getElementById("kyc-city").value,
+          state: document.getElementById("kyc-state").value,
+          pincode: document.getElementById("kyc-pincode").value,
+          pan: document.getElementById("kyc-pan").value,
+          aadhaar: document.getElementById("kyc-aadhaar").value,
+          occupation: document.getElementById("kyc-occupation").value,
+          annualIncome: document.getElementById("kyc-income").value,
+          nomineeName: document.getElementById("kyc-nominee").value,
+          nomineeRelation: document.getElementById("kyc-relation").value,
+        };
+        const profile = Bank.saveKyc(fields);
+        flash(profile.kycStatus === 'VERIFIED' ? "✓ KYC verified successfully!" : "KYC saved (pending verification).", "success");
+        renderKyc();
+      } catch (err) {
+        flash(err.message, "danger");
+      }
+      return false;
+    }
+
+    // ---- INIT AND POPULATE DROPDOWNS ---------
+    function initDropdowns() {
+      // Deposit schemes
+      const odScheme = document.getElementById("od-scheme");
+      Bank.SCHEMES.filter(s => s.openable).forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.code;
+        opt.textContent = `${s.name} (${s.rate}% p.a.)`;
+        odScheme.appendChild(opt);
+      });
+
+      // Loan products
+      const alProduct = document.getElementById("al-product");
+      Bank.LOAN_PRODUCTS.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.code;
+        opt.textContent = `${p.name} (${p.rate}% p.a.)`;
+        alProduct.appendChild(opt);
+      });
+    }
+
+    // Override render to call all sub-renderers
+    const originalRender = render;
+    render = function() {
+      originalRender();
+      const active = document.querySelector("section:not(.hidden)").id;
+      if (active === "view-deposits") renderDeposits();
+      if (active === "view-open-deposit") updateDepositEstimate();
+      if (active === "view-loans") renderLoans();
+      if (active === "view-apply-loan") updateLoanEstimate();
+      if (active === "view-kyc") renderKyc();
+    };
+
+    initDropdowns();
     show('home');
   </script>
 </body>

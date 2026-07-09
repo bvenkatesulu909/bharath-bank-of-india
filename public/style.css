@@ -13,6 +13,28 @@
   --shadow: 0 10px 30px rgba(11, 36, 71, .08);
 }
 * { box-sizing: border-box; }
+
+/* ---------- Indian tricolor strip ---------- */
+.tricolor-strip {
+  height: 9px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 60;
+}
+.tricolor-strip .band { flex: 1; }
+.tricolor-strip .band-saffron { background: #FF9933; }
+.tricolor-strip .band-white   { background: #FFFFFF; position: relative; }
+.tricolor-strip .band-green   { background: #138808; }
+.tricolor-strip .chakra {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#0b2447 0deg 7.5deg, transparent 7.5deg 15deg);
+  box-shadow: 0 0 0 1px #0b2447 inset;
+}
 body {
   margin: 0;
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
@@ -105,6 +127,7 @@ input:focus, select:focus { outline: none; border-color: var(--navy-2); box-shad
 .txn-table th, .txn-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: .92rem; }
 .txn-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: .72rem; letter-spacing: .6px; }
 .txn-table tr:last-child td { border-bottom: none; }
+.txn-table-wrap { overflow-x: auto; }
 .amt-credit { color: var(--green); font-weight: 700; }
 .amt-debit  { color: var(--danger); font-weight: 700; }
 .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 700; }
@@ -125,6 +148,49 @@ input:focus, select:focus { outline: none; border-color: var(--navy-2); box-shad
 @media (max-width: 820px) {
   .grid-2 { grid-template-columns: 1fr; }
   .features { grid-template-columns: 1fr; }
+  .actions { grid-template-columns: repeat(2, 1fr); }
   .kv { grid-template-columns: 1fr; }
   .hero h1 { font-size: 1.7rem; }
+  .stat-grid, .product-grid { grid-template-columns: 1fr; }
+  .deposit-grid { grid-template-columns: repeat(2, 1fr); }
+  .estimate { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .txn-table-wrap { overflow-x: auto; }
+  input, select { font-size: 16px; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 16px 12px 40px; }
+  .topbar-inner { padding: 10px 12px; gap: 8px; flex-direction: column; align-items: flex-start; }
+  .brand-text { font-size: 0.9rem; }
+  .nav { flex-direction: column; width: 100%; gap: 4px; }
+  .nav a, .nav button.linkbtn { width: 100%; text-align: center; padding: 10px 8px; font-size: .85rem; }
+  .hero { padding: 28px 20px; }
+  .hero h1 { font-size: 1.4rem; }
+  .hero p { font-size: 0.95rem; }
+  .hero .cta { flex-direction: column; gap: 8px; }
+  .hero .cta a, .hero .cta button { width: 100%; }
+  .grid { gap: 14px; }
+  .card { padding: 16px; }
+  .balance-amount { font-size: 1.8rem; }
+  .acc-meta { gap: 12px; font-size: .8rem; }
+  .actions { grid-template-columns: 1fr; gap: 10px; }
+  .action { padding: 14px 8px; font-size: .9rem; }
+  .action .ico { font-size: 1.2rem; }
+  .stat-grid { grid-template-columns: 1fr; gap: 12px; }
+  .product-grid { grid-template-columns: 1fr; gap: 12px; }
+  .deposit-grid { grid-template-columns: 1fr; gap: 10px 12px; }
+  .estimate { grid-template-columns: 1fr; gap: 8px; }
+  .two-col { grid-template-columns: 1fr; gap: 10px; }
+  .tricolor-strip { height: 6px; }
+  .btn, .btn-primary, .btn-navy, .btn-light { width: 100%; padding: 10px 16px; font-size: .9rem; }
+  .btn-block { width: 100%; }
+  .auth-wrap { max-width: 100%; margin: 16px 0; }
+  .form-row { margin-bottom: 12px; }
+  input, select { padding: 10px 11px; font-size: 16px; border-radius: 8px; }
+  .txn-table { font-size: .8rem; }
+  .txn-table th, .txn-table td { padding: 10px 6px; }
+  .feature { padding: 16px; }
+  .feature .ico { font-size: 1.4rem; }
+  .kv { gap: 8px 12px; }
 }
