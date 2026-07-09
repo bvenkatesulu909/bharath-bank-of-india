@@ -281,7 +281,13 @@
     <!-- KYC -->
     <section id="view-kyc" class="hidden">
       <div class="auth-wrap"><div class="card">
-        <h2>KYC Profile</h2>
+        <h2>KYC Profile <span class="pill" style="background:var(--muted-light);color:var(--muted);font-size:0.6em;vertical-align:middle;">SAMPLE DATA ONLY</span></h2>
+        <div class="flash flash-warning" style="margin-bottom:16px;">
+          This is an <b>educational banking simulator</b> — not a real bank. Please enter
+          <b>sample/fictitious details only</b>. Do <b>not</b> enter your real PAN, Aadhaar, or
+          any real identity or financial information. Everything you type stays only on this
+          device (browser storage) and is never sent anywhere.
+        </div>
         <div id="kyc-status" style="margin-bottom:16px;"></div>
         <form onsubmit="return doSaveKyc(event)">
           <div class="form-row">
@@ -314,12 +320,14 @@
             <input id="kyc-pincode" placeholder="6-digit pincode">
           </div>
           <div class="form-row">
-            <label>PAN</label>
-            <input id="kyc-pan" placeholder="10-digit PAN (e.g., ABCDE1234F)" style="text-transform:uppercase;">
+            <label>Sample PAN <span class="muted">(demo only — use ABCDE1234F)</span></label>
+            <input id="kyc-pan" placeholder="Sample PAN, e.g. ABCDE1234F" style="text-transform:uppercase;">
+            <div class="hint">Do not enter a real PAN. This is a fictitious demo field.</div>
           </div>
           <div class="form-row">
-            <label>Aadhaar (last 4 digits)</label>
-            <input id="kyc-aadhaar" maxlength="4" placeholder="Last 4 digits">
+            <label>Sample ID (last 4 digits) <span class="muted">(demo only)</span></label>
+            <input id="kyc-aadhaar" maxlength="4" placeholder="Any 4 digits, e.g. 0000">
+            <div class="hint">Do not enter a real Aadhaar. Only 4 sample digits, stored on-device.</div>
           </div>
           <div class="form-row">
             <label>Occupation</label>
@@ -357,7 +365,8 @@
   <footer class="footer">
     <div class="footer-inner">
       <div><strong>Bharath Bank of India</strong><br>Bharath Nagar Main Branch, Hyderabad · IFSC BBIN0001729</div>
-      <div>Demonstration application · Not a real bank, holds no real money.</div>
+      <div>Demonstration application · Not a real bank, holds no real money.<br>
+        <a href="privacy.html">Privacy Policy</a></div>
     </div>
   </footer>
 
